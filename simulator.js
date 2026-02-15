@@ -39,7 +39,7 @@ const ROBOT_TIERS = {
 // Actual scored = preloadScored × robot tier accuracy (rolled with variance)
 const AUTO_TIERS = {
     none: { name: 'No Auto (stays still)', leaveZone: false, preloadScored: 0, extraPickup: 0, l1Climb: false, reliability: 1.0, frcPercent: 10 },
-    leaveOnly: { name: 'Leave Zone Only (+3pts)', leaveZone: true, preloadScored: 0, extraPickup: 0, l1Climb: false, reliability: 0.90, frcPercent: 15 },
+    leaveOnly: { name: 'Leave Zone Only (0pts)', leaveZone: true, preloadScored: 0, extraPickup: 0, l1Climb: false, reliability: 0.90, frcPercent: 15 },
     shoot1: { name: 'Shoot 1 Preloaded', leaveZone: true, preloadScored: 1, extraPickup: 0, l1Climb: false, reliability: 0.85, frcPercent: 15 },
     shoot3: { name: 'Shoot 3 Preloaded', leaveZone: true, preloadScored: 3, extraPickup: 0, l1Climb: false, reliability: 0.80, frcPercent: 15 },
     shoot5: { name: 'Shoot 5 Preloaded', leaveZone: true, preloadScored: 5, extraPickup: 0, l1Climb: false, reliability: 0.75, frcPercent: 12 },
