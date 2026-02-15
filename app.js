@@ -90,13 +90,26 @@ function buildTierCards(Sim) {
     var container = $('tierCardsContainer');
     if (!container) return;
     var ROBOT_TIERS = Sim.ROBOT_TIERS;
+    var TURRET_TYPES = Sim.TURRET_TYPES;
     var keys = Object.keys(ROBOT_TIERS);
 
-    var colors = { low: '#ef4444', mid: '#eab308', elite: '#22c55e' };
+    var colors = {
+        t1_rookie: '#6b7280',
+        t2_kitbot: '#ef4444',
+        t3_everybot: '#f97316',
+        t4_competitive: '#eab308',
+        t5_advanced: '#22c55e',
+        t6_ccbot: '#3b82f6',
+        t7_worldclass: '#a855f7'
+    };
     var descriptions = {
-        low: 'Rookie or limited-resource teams. Can score but slowly. Unreliable climbs. Defense is their best value.',
-        mid: 'Average competitive robot. Consistent scorer with moderate cycle times. Can climb L2 reliably.',
-        elite: 'Top-tier team. Fast cycles, high accuracy, reliable L3 climbs. The robot everyone wants in their alliance.'
+        t1_rookie: 'First-year team or severely limited resources. Barely functional; often breaks down. No climbing capability. ~Bottom 10% of FRC.',
+        t2_kitbot: 'Standard kitbot with basic modifications. Can score slowly and climb L1. Benchmark for entry-level competitive play. ~25th percentile.',
+        t3_everybot: 'Everybot-level — accessible build with reliable performance. Can climb L1-L2. Solid choice for teams with limited machining. ~40th percentile.',
+        t4_competitive: 'Solid regional contender. Consistent scorer with moderate cycle times. Reliable L1-L2 climber. ~55th percentile.',
+        t5_advanced: 'Strong district/regional contender. Fast cycles, good accuracy, L1-L3 capable. A strong pick in alliance selection. ~75th percentile.',
+        t6_ccbot: 'WCP Competitive Concept level. Near-elite performance with fast intakes, high accuracy, and reliable L3 climbs. ~Top 10%.',
+        t7_worldclass: 'Einstein finalist caliber. Blistering cycle times, near-perfect accuracy, and bulletproof reliability. The robot everyone wants. ~Top 2%.'
     };
 
     var html = '<div class="tier-cards-grid">';
@@ -104,17 +117,20 @@ function buildTierCards(Sim) {
         var key = keys[i];
         var t = ROBOT_TIERS[key];
         var c = colors[key] || '#8b5cf6';
+        var turretName = t.defaultTurret ? (TURRET_TYPES[t.defaultTurret] ? TURRET_TYPES[t.defaultTurret].name : t.defaultTurret) : 'N/A';
 
         html += '<div class="tier-card">' +
             '<div class="tier-card__header" style="border-color:' + c + ';">' + t.name + '</div>' +
-            '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">' + (descriptions[key] || '') + '</p>' +
+            '<p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">' + (descriptions[key] || '') + '</p>' +
+            '<div style="font-size:11px;color:' + c + ';margin-bottom:8px;font-weight:600;">~' + (t.frcPercent || '?') + '% of FRC field</div>' +
             tierStat('Drivetrain Speed', t.drivetrain.effectiveSpeed + ' ft/s') +
             tierStat('Field Traverse', t.drivetrain.fieldTraverse + ' s') +
             tierStat('Intake Rate', t.fuel.intakeRate + ' fuel/s') +
             tierStat('Shoot Rate', t.fuel.shootRate + ' fuel/s') +
             tierStat('Fuel Accuracy', (t.fuel.accuracy * 100).toFixed(0) + '%') +
             tierStat('Hopper Capacity', t.fuel.hopperCapacity + ' fuel') +
-            tierStat('Max Climb Level', 'L' + t.climber.maxLevel) +
+            tierStat('Default Turret', turretName) +
+            tierStat('Max Climb Level', t.climber.maxLevel > 0 ? 'L' + t.climber.maxLevel : 'None') +
             tierStat('Climb Reliability', (t.climber.reliability * 100).toFixed(0) + '%') +
             tierStat('Defense Disruption', (t.defense.disruption * 100).toFixed(0) + '%') +
             tierStat('Full Match Rate', (t.reliability.full * 100).toFixed(0) + '%') +
@@ -214,7 +230,7 @@ function showTacticDetail(key, Sim) {
         '<span style="font-size:32px;">' + t.icon + '</span>' +
         '<div>' +
         '<div style="font-size:20px;font-weight:700;color:var(--text-primary);">' + t.name + '</div>' +
-        '<div style="font-size:13px;color:var(--text-muted);margin-top:2px;">Default tier: ' + (t.defaultTier || 'mid') + ' · HP: ' + (t.defaultHP || 'average') + '</div>' +
+        '<div style="font-size:13px;color:var(--text-muted);margin-top:2px;">Default tier: ' + (t.defaultTier || 't4_competitive') + ' · HP: ' + (t.defaultHP || 'average') + '</div>' +
         '</div>' +
         '</div>' +
 
@@ -303,7 +319,7 @@ function updateRobotSlots(color, Sim) {
         var tierOpts = '';
         var tKeys = Object.keys(ROBOT_TIERS);
         for (var j = 0; j < tKeys.length; j++) {
-            tierOpts += '<option value="' + tKeys[j] + '"' + (tKeys[j] === (tactic.defaultTier || 'mid') ? ' selected' : '') + '>' + ROBOT_TIERS[tKeys[j]].name + '</option>';
+            tierOpts += '<option value="' + tKeys[j] + '"' + (tKeys[j] === (tactic.defaultTier || 't4_competitive') ? ' selected' : '') + '>' + ROBOT_TIERS[tKeys[j]].name + '</option>';
         }
 
         var autoOpts = '';

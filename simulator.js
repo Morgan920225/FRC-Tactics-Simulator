@@ -2,34 +2,122 @@
 // FRC 2026 "REBUILT" Tactic Simulator — Core Engine
 // ============================================================
 
-// --- ROBOT TIER PROFILES ---
+// --- ROBOT TIER PROFILES (7 tiers based on real FRC robots) ---
 const ROBOT_TIERS = {
-    low: {
-        name: 'Low-End',
-        drivetrain: { effectiveSpeed: 9.6, accelTime: 1.2, bumpPenalty: 1.5, fieldTraverse: 4.0 },
-        fuel: { intakeRate: 2, hopperCapacity: 12, shootRate: 2, accuracy: 0.60, shootOnMove: false },
-        climber: { maxLevel: 1, l1Time: 5, l3Time: Infinity, reliability: 0.70 },
+    t1_rookie: {
+        name: 'T1 — Rookie Bot',
+        reference: 'First-year team, minimal mechanism',
+        drivetrain: { effectiveSpeed: 10.0, accelTime: 1.5, bumpPenalty: 2.0, fieldTraverse: 5.0 },
+        fuel: { intakeRate: 1, hopperCapacity: 8, shootRate: 1, accuracy: 0.40 },
+        climber: { maxLevel: 0, l1Time: Infinity, l3Time: Infinity, reliability: 0.0 },
+        defense: { disruption: 0.08, selfPenalty: 0.70 },
+        brownout: { risk: 0.20, recoveryTime: 6 },
+        reliability: { full: 0.55, partial: 0.25, dead: 0.20, partialReduction: 0.60 },
+        defaultTurret: 'singleSpin',
+        frcPercent: 10
+    },
+    t2_kitbot: {
+        name: 'T2 — Kitbot',
+        reference: 'AM14U6 Kitbot — tank drive, floor intake, short-range dump',
+        drivetrain: { effectiveSpeed: 12.7, accelTime: 1.2, bumpPenalty: 1.5, fieldTraverse: 4.0 },
+        fuel: { intakeRate: 2, hopperCapacity: 12, shootRate: 2, accuracy: 0.55 },
+        climber: { maxLevel: 1, l1Time: 5, l3Time: Infinity, reliability: 0.65 },
         defense: { disruption: 0.125, selfPenalty: 0.60 },
         brownout: { risk: 0.15, recoveryTime: 5 },
-        reliability: { full: 0.70, partial: 0.20, dead: 0.10, partialReduction: 0.50 }
+        reliability: { full: 0.70, partial: 0.20, dead: 0.10, partialReduction: 0.50 },
+        defaultTurret: 'multiFixed',
+        frcPercent: 20
     },
-    mid: {
-        name: 'Mid-Tier',
-        drivetrain: { effectiveSpeed: 11.4, accelTime: 0.8, bumpPenalty: 0.8, fieldTraverse: 2.8 },
-        fuel: { intakeRate: 4, hopperCapacity: 28, shootRate: 4, accuracy: 0.80, shootOnMove: false },
+    t3_everybot: {
+        name: 'T3 — Everybot',
+        reference: 'Robonauts Everybot — floor pickup, shooter, fuel storage, Tower climb',
+        drivetrain: { effectiveSpeed: 14.0, accelTime: 1.0, bumpPenalty: 1.0, fieldTraverse: 3.2 },
+        fuel: { intakeRate: 3, hopperCapacity: 20, shootRate: 3, accuracy: 0.68 },
+        climber: { maxLevel: 2, l1Time: 4, l3Time: 15, reliability: 0.80 },
+        defense: { disruption: 0.18, selfPenalty: 0.50 },
+        brownout: { risk: 0.10, recoveryTime: 4 },
+        reliability: { full: 0.80, partial: 0.15, dead: 0.05, partialReduction: 0.40 },
+        defaultTurret: 'multiFixed',
+        frcPercent: 25
+    },
+    t4_competitive: {
+        name: 'T4 — Competitive',
+        reference: 'Solid regional bot — reliable mechanisms, decent shooter',
+        drivetrain: { effectiveSpeed: 14.5, accelTime: 0.8, bumpPenalty: 0.8, fieldTraverse: 2.8 },
+        fuel: { intakeRate: 4, hopperCapacity: 28, shootRate: 5, accuracy: 0.78 },
         climber: { maxLevel: 2, l1Time: 3, l3Time: 12, reliability: 0.90 },
         defense: { disruption: 0.25, selfPenalty: 0.40 },
         brownout: { risk: 0.05, recoveryTime: 3 },
-        reliability: { full: 0.88, partial: 0.10, dead: 0.02, partialReduction: 0.30 }
+        reliability: { full: 0.88, partial: 0.10, dead: 0.02, partialReduction: 0.30 },
+        defaultTurret: 'singleSpin',
+        frcPercent: 20
     },
-    elite: {
-        name: 'Elite',
-        drivetrain: { effectiveSpeed: 13.2, accelTime: 1.0, bumpPenalty: 1.0, fieldTraverse: 2.5 },
-        fuel: { intakeRate: 6, hopperCapacity: 60, shootRate: 10, accuracy: 0.92, shootOnMove: true },
-        climber: { maxLevel: 3, l1Time: 2, l3Time: 5, reliability: 0.98 },
-        defense: { disruption: 0.40, selfPenalty: 0.20 },
+    t5_advanced: {
+        name: 'T5 — Advanced',
+        reference: 'Strong district championship contender',
+        drivetrain: { effectiveSpeed: 15.0, accelTime: 0.7, bumpPenalty: 0.6, fieldTraverse: 2.5 },
+        fuel: { intakeRate: 5, hopperCapacity: 36, shootRate: 7, accuracy: 0.85 },
+        climber: { maxLevel: 3, l1Time: 2.5, l3Time: 8, reliability: 0.94 },
+        defense: { disruption: 0.32, selfPenalty: 0.30 },
+        brownout: { risk: 0.03, recoveryTime: 2.5 },
+        reliability: { full: 0.92, partial: 0.06, dead: 0.02, partialReduction: 0.25 },
+        defaultTurret: 'singleSpin',
+        frcPercent: 12
+    },
+    t6_ccbot: {
+        name: 'T6 — CC Bot',
+        reference: 'WCP Competitive Concept — swerve, GreyT Turret, flywheel, full climb',
+        drivetrain: { effectiveSpeed: 15.5, accelTime: 0.6, bumpPenalty: 0.5, fieldTraverse: 2.2 },
+        fuel: { intakeRate: 6, hopperCapacity: 50, shootRate: 9, accuracy: 0.90 },
+        climber: { maxLevel: 1, l1Time: 2, l3Time: Infinity, reliability: 0.97 },
+        defense: { disruption: 0.38, selfPenalty: 0.22 },
         brownout: { risk: 0.01, recoveryTime: 2 },
-        reliability: { full: 0.96, partial: 0.035, dead: 0.005, partialReduction: 0.20 }
+        reliability: { full: 0.95, partial: 0.04, dead: 0.01, partialReduction: 0.20 },
+        defaultTurret: 'multiAdjustable',
+        frcPercent: 8
+    },
+    t7_worldclass: {
+        name: 'T7 — World-Class',
+        reference: 'Einstein finalist (254, 1678 level)',
+        drivetrain: { effectiveSpeed: 16.0, accelTime: 0.5, bumpPenalty: 0.4, fieldTraverse: 2.0 },
+        fuel: { intakeRate: 8, hopperCapacity: 60, shootRate: 12, accuracy: 0.94 },
+        climber: { maxLevel: 3, l1Time: 1.5, l3Time: 4, reliability: 0.99 },
+        defense: { disruption: 0.42, selfPenalty: 0.18 },
+        brownout: { risk: 0.005, recoveryTime: 1.5 },
+        reliability: { full: 0.97, partial: 0.025, dead: 0.005, partialReduction: 0.15 },
+        defaultTurret: 'multiAdjustable',
+        frcPercent: 5
+    }
+};
+
+// --- TURRET TYPE PROFILES ---
+const TURRET_TYPES = {
+    singleSpin: {
+        name: 'Single Turret (Spinning)',
+        canSpin: true,
+        fixedTilt: false,
+        shootRateMult: 1.0,
+        alignTime: 1.0,
+        defenseResilience: 0.85,
+        description: 'Flexible aim, scores while moving. Best under defense.'
+    },
+    multiAdjustable: {
+        name: 'Multi Turret (Adjustable Tilt)',
+        canSpin: false,
+        fixedTilt: false,
+        shootRateMult: 1.8,
+        alignTime: 1.5,
+        defenseResilience: 0.70,
+        description: 'Fast burst fire with tilt control. Moderate defense handling.'
+    },
+    multiFixed: {
+        name: 'Multi Turret (Fixed Tilt)',
+        canSpin: false,
+        fixedTilt: true,
+        shootRateMult: 2.5,
+        alignTime: 2.25,
+        defenseResilience: 0.55,
+        description: 'Max throughput but must be stationary & perfectly positioned. Worst under defense.'
     }
 };
 
@@ -51,9 +139,9 @@ const AUTO_TIERS = {
 
 // --- HUMAN PLAYER TIERS ---
 const HP_TIERS = {
-    low: { name: 'Low Skill', throwRate: 0.5, accuracy: 0.40 },
-    average: { name: 'Average', throwRate: 1.0, accuracy: 0.60 },
-    elite: { name: 'Elite', throwRate: 2.0, accuracy: 0.75 }
+    low: { name: 'Low Skill', throwRate: 0.5, accuracyRange: [0.30, 0.50] },
+    average: { name: 'Average', throwRate: 1.0, accuracyRange: [0.45, 0.65] },
+    elite: { name: 'Elite', throwRate: 2.0, accuracyRange: [0.60, 0.80] }
 };
 
 // --- TACTIC ARCHETYPES (alliance-level) ---
@@ -67,7 +155,7 @@ const TACTICS = {
         guide: 'Best when: Your robots have strong shooters and fast cycle times. Risk: Opponents score freely too.',
         roles: ['scorer', 'scorer', 'scorer'],
         roleLabels: ['Scorer #1', 'Scorer #2', 'Scorer #3'],
-        defaultTier: 'mid',
+        defaultTier: 't4_competitive',
         defaultAutos: ['shoot8', 'shoot5', 'shoot3'],
         defaultHP: 'average',
         inactiveBehavior: 'hoard',
@@ -81,7 +169,7 @@ const TACTICS = {
         guide: 'Best when: You have 2 strong scorers and 1 fast but inaccurate robot. The defender slows opponents by ~25-40%.',
         roles: ['scorer', 'scorer', 'defender'],
         roleLabels: ['Scorer #1', 'Scorer #2', 'Defender'],
-        defaultTier: 'mid',
+        defaultTier: 't4_competitive',
         defaultAutos: ['shoot5', 'shoot3', 'leaveOnly'],
         defaultHP: 'average',
         inactiveBehavior: 'defend',
@@ -95,7 +183,7 @@ const TACTICS = {
         guide: 'Best when: All robots are elite-tier with fast intakes and accurate shooters. Requires high robot reliability.',
         roles: ['scorer', 'scorer', 'scorer'],
         roleLabels: ['Primary Scorer', 'Secondary Scorer', 'Collector/Scorer'],
-        defaultTier: 'elite',
+        defaultTier: 't6_ccbot',
         defaultAutos: ['elite', 'multiCycle', 'preloadPlus'],
         defaultHP: 'average',
         inactiveBehavior: 'hoard',
@@ -109,7 +197,7 @@ const TACTICS = {
         guide: 'Best when: Robots have reliable climbers. Even mid-tier climbers at L1(10)+L2(20)+L3(30)=60pts earns RP.',
         roles: ['scorer', 'scorer', 'climber'],
         roleLabels: ['Scorer & Climber', 'Scorer & Climber', 'Priority Climber'],
-        defaultTier: 'mid',
+        defaultTier: 't4_competitive',
         defaultAutos: ['shoot3', 'shoot3', 'shoot1'],
         defaultHP: 'average',
         inactiveBehavior: 'reposition',
@@ -123,7 +211,7 @@ const TACTICS = {
         guide: 'Best when: Robots have reliable multi-cycle autos. Winning auto = choosing the hub shift order.',
         roles: ['scorer', 'scorer', 'scorer'],
         roleLabels: ['Auto Specialist #1', 'Auto Specialist #2', 'Auto Specialist #3'],
-        defaultTier: 'elite',
+        defaultTier: 't6_ccbot',
         defaultAutos: ['elite', 'multiCycle', 'preloadPlus'],
         defaultHP: 'average',
         inactiveBehavior: 'hoard',
@@ -137,7 +225,7 @@ const TACTICS = {
         guide: 'Best when: Uncertain about opponents, or all robots are similar mid-tier capability. Safe default choice.',
         roles: ['scorer', 'scorer', 'scorer'],
         roleLabels: ['Flex #1', 'Flex #2', 'Flex #3'],
-        defaultTier: 'mid',
+        defaultTier: 't4_competitive',
         defaultAutos: ['shoot3', 'shoot3', 'shoot1'],
         defaultHP: 'average',
         inactiveBehavior: 'hoard',
@@ -151,7 +239,7 @@ const TACTICS = {
         guide: 'Best when: One robot has a very reliable climber. Secures the Traversal RP while still scoring competitively.',
         roles: ['scorer', 'scorer', 'climber'],
         roleLabels: ['Scorer #1', 'Scorer #2', 'Dedicated Climber'],
-        defaultTier: 'mid',
+        defaultTier: 't4_competitive',
         defaultAutos: ['shoot5', 'shoot3', 'shoot1'],
         defaultHP: 'average',
         inactiveBehavior: 'hoard',
@@ -165,7 +253,7 @@ const TACTICS = {
         guide: 'Best when: Your robots can\'t outscore opponents. Trading your low output for heavy opponent disruption. High foul risk!',
         roles: ['defender', 'defender', 'defender'],
         roleLabels: ['Chokepoint Blocker', 'Hub Guard', 'Zone Denier'],
-        defaultTier: 'mid',
+        defaultTier: 't4_competitive',
         defaultAutos: ['leaveOnly', 'leaveOnly', 'none'],
         defaultHP: 'average',
         inactiveBehavior: 'defend',
@@ -205,8 +293,89 @@ const REALISM = {
     breakdown: true,
     brownout: true,
     fouls: true,
-    congestion: true
+    congestion: true,
+    fuelPhysics: true  // Finite fuel tracking
 };
+
+// --- FUEL POOL STATE ---
+function createFuelPool() {
+    return {
+        neutralZone: FUEL.neutralZone,                           // 360
+        redAllianceZone: FUEL.depotPerAlliance,                   // 24 (depot)
+        blueAllianceZone: FUEL.depotPerAlliance,                  // 24 (depot)
+        redOutpost: FUEL.outpostPerAlliance,                      // 24
+        blueOutpost: FUEL.outpostPerAlliance,                     // 24
+        redRobots: [FUEL.preloadPerRobot, FUEL.preloadPerRobot, FUEL.preloadPerRobot], // 8 each
+        blueRobots: [FUEL.preloadPerRobot, FUEL.preloadPerRobot, FUEL.preloadPerRobot],
+        inHubRed: 0,
+        inHubBlue: 0,
+        hpCapacity: 18,  // max fuel HP can hold at once (8 + 10)
+        outpostRestockLeak: [1, 2],  // fuel leaked when robot restocks from outpost
+        total() {
+            return this.neutralZone + this.redAllianceZone + this.blueAllianceZone
+                + this.redOutpost + this.blueOutpost
+                + this.redRobots.reduce((a, b) => a + b, 0)
+                + this.blueRobots.reduce((a, b) => a + b, 0)
+                + this.inHubRed + this.inHubBlue;
+        }
+    };
+}
+
+// Helper: take fuel from available sources for an alliance
+function takeFuel(fuelPool, alliance, amount) {
+    if (!REALISM.fuelPhysics) return amount;
+    const azKey = alliance + 'AllianceZone';
+    let taken = 0;
+    // Draw from alliance zone first
+    const fromAZ = Math.min(amount, fuelPool[azKey]);
+    fuelPool[azKey] -= fromAZ;
+    taken += fromAZ;
+    // Then from neutral zone
+    if (taken < amount) {
+        const fromNZ = Math.min(amount - taken, fuelPool.neutralZone);
+        fuelPool.neutralZone -= fromNZ;
+        taken += fromNZ;
+    }
+    return taken;
+}
+
+// Helper: score fuel through hub (returns to neutral after transit)
+function scoreFuelThroughHub(fuelPool, alliance, fuelCount) {
+    if (!REALISM.fuelPhysics) return;
+    const hubKey = 'inHub' + alliance.charAt(0).toUpperCase() + alliance.slice(1);
+    fuelPool[hubKey] += fuelCount;
+}
+
+// Helper: flush hub transit — scored fuel returns to neutral zone
+function flushHubTransit(fuelPool) {
+    fuelPool.neutralZone += fuelPool.inHubRed + fuelPool.inHubBlue;
+    fuelPool.inHubRed = 0;
+    fuelPool.inHubBlue = 0;
+}
+
+// Helper: allocate neutral zone fuel proportionally between alliances
+function allocateNeutralFuel(fuelPool, redCollectors, blueCollectors) {
+    const total = redCollectors + blueCollectors;
+    if (total === 0) return { red: 0, blue: 0 };
+    const available = fuelPool.neutralZone;
+    const redShare = Math.floor(available * (redCollectors / total));
+    const blueShare = available - redShare;
+    return { red: redShare, blue: blueShare };
+}
+
+// Helper: robot restocks from outpost (dumps all at once, 1-2 leak to alliance zone)
+function restockFromOutpost(fuelPool, alliance, robotIdx) {
+    const outpostKey = alliance + 'Outpost';
+    const azKey = alliance + 'AllianceZone';
+    const robotsKey = alliance + 'Robots';
+    const available = fuelPool[outpostKey];
+    if (available <= 0) return 0;
+    const leaked = Math.floor(rand(fuelPool.outpostRestockLeak[0], fuelPool.outpostRestockLeak[1] + 1));
+    const collected = Math.max(0, available - leaked);
+    fuelPool[outpostKey] = 0;
+    fuelPool[azKey] += Math.min(leaked, available); // leaked fuel stays in alliance zone
+    return collected; // caller adds to robot hopper
+}
 
 // --- UTILITY FUNCTIONS ---
 function rand(min, max) {
@@ -289,21 +458,49 @@ const ReliabilityEngine = {
 };
 
 // --- HUMAN PLAYER SCORING ---
-function simulateHumanPlayer(hpTier, duration, isHubActive) {
-    if (!isHubActive) return { scored: 0, thrown: 0 };
+function simulateHumanPlayer(hpTier, duration, isHubActive, fuelPool, alliance) {
+    if (!isHubActive) return { scored: 0, thrown: 0, consumed: 0 };
     const hp = HP_TIERS[hpTier];
-    const thrown = Math.floor(applyVariance(hp.throwRate * duration, 0.20));
-    const scored = Math.floor(thrown * applyVariance(hp.accuracy, 0.10));
-    return { scored, thrown };
+    const outpostKey = alliance + 'Outpost';
+
+    // HP draws from outpost, capped by HP capacity (18)
+    let available;
+    if (REALISM.fuelPhysics) {
+        available = Math.min(fuelPool.hpCapacity, fuelPool[outpostKey]);
+    } else {
+        available = 999; // infinite without fuel physics
+    }
+
+    const maxThrows = Math.floor(applyVariance(hp.throwRate * duration, 0.20));
+    const throws = Math.min(maxThrows, available);
+    let scored = 0;
+
+    // Each throw has random accuracy within the range
+    for (let i = 0; i < throws; i++) {
+        const acc = rand(hp.accuracyRange[0], hp.accuracyRange[1]);
+        if (rollProbability(acc)) scored++;
+    }
+
+    // Update fuel pool
+    if (REALISM.fuelPhysics) {
+        fuelPool[outpostKey] -= throws;
+        scoreFuelThroughHub(fuelPool, alliance, scored);
+        // Missed fuel goes to neutral zone (bounced off hub)
+        fuelPool.neutralZone += (throws - scored);
+    }
+
+    return { scored, thrown: throws, consumed: throws };
 }
 
 // --- AUTONOMOUS SIMULATION ---
-function simulateAutonomous(alliance) {
+function simulateAutonomous(alliance, fuelPool, allianceColor) {
     let totalFuelScored = 0;
     let totalClimbPts = 0;
     const robotResults = [];
+    const robotsKey = allianceColor + 'Robots';
 
-    for (const robot of alliance.robots) {
+    for (let ri = 0; ri < alliance.robots.length; ri++) {
+        const robot = alliance.robots[ri];
         const autoTier = AUTO_TIERS[robot.autoTier];
         const robotTier = ROBOT_TIERS[robot.tier];
         let fuelScored = 0;
@@ -316,28 +513,56 @@ function simulateAutonomous(alliance) {
         if (autoSucceeds) {
             leaveZone = autoTier.leaveZone;
 
-            // Preload scoring — limited by shoot rate × 20s and accuracy
-            const maxShootable = Math.min(autoTier.preloadScored, robotTier.fuel.shootRate * MATCH.autoDuration);
-            fuelScored += Math.floor(applyVariance(maxShootable, 0.15) * applyVariance(robotTier.fuel.accuracy, 0.05));
+            // Preload scoring — uses fuel from robot's preload (fuelPool.robotsKey[ri])
+            const preloadAvailable = REALISM.fuelPhysics ? fuelPool[robotsKey][ri] : autoTier.preloadScored;
+            const maxShootable = Math.min(autoTier.preloadScored, preloadAvailable, robotTier.fuel.shootRate * MATCH.autoDuration);
+            const preloadScored = Math.floor(applyVariance(maxShootable, 0.15) * applyVariance(robotTier.fuel.accuracy, 0.05));
+            fuelScored += preloadScored;
+
+            // Deduct preloaded fuel from robot
+            if (REALISM.fuelPhysics) {
+                fuelPool[robotsKey][ri] -= maxShootable;
+                scoreFuelThroughHub(fuelPool, allianceColor, preloadScored);
+                // Missed preload fuel goes to alliance zone (drops near robot)
+                const missed = maxShootable - preloadScored;
+                fuelPool[allianceColor + 'AllianceZone'] += missed;
+            }
 
             // Extra pickup cycles
             if (autoTier.extraPickup > 0) {
                 const cycleTime = robotTier.drivetrain.fieldTraverse + (autoTier.extraPickup / robotTier.fuel.intakeRate);
                 const timeForExtra = MATCH.autoDuration - (autoTier.preloadScored / robotTier.fuel.shootRate) - 2;
                 if (timeForExtra > 0) {
-                    const extraShotable = Math.min(autoTier.extraPickup, timeForExtra * robotTier.fuel.shootRate * 0.6);
-                    fuelScored += Math.floor(applyVariance(extraShotable, 0.25) * applyVariance(robotTier.fuel.accuracy, 0.10));
+                    let extraAvailable = autoTier.extraPickup;
+                    if (REALISM.fuelPhysics) {
+                        extraAvailable = Math.min(extraAvailable, fuelPool.neutralZone);
+                        fuelPool.neutralZone -= extraAvailable;
+                    }
+                    const extraShotable = Math.min(extraAvailable, timeForExtra * robotTier.fuel.shootRate * 0.6);
+                    const extraScored = Math.floor(applyVariance(extraShotable, 0.25) * applyVariance(robotTier.fuel.accuracy, 0.10));
+                    fuelScored += extraScored;
+
+                    if (REALISM.fuelPhysics) {
+                        scoreFuelThroughHub(fuelPool, allianceColor, extraScored);
+                        fuelPool[allianceColor + 'AllianceZone'] += (Math.floor(extraShotable) - extraScored);
+                    }
                 }
             }
 
             // L1 climb in auto
-            if (autoTier.l1Climb && rollProbability(robotTier.climber.reliability)) {
+            if (autoTier.l1Climb && robotTier.climber.maxLevel >= 1 && rollProbability(robotTier.climber.reliability)) {
                 climbPts = MATCH.autoClimbL1Pts;
             }
         } else {
             // Auto failure — partial results
             if (autoTier.preloadScored > 0 && rollProbability(0.3)) {
-                fuelScored = Math.floor(rand(0, autoTier.preloadScored * 0.3));
+                const partialScored = Math.floor(rand(0, autoTier.preloadScored * 0.3));
+                fuelScored = partialScored;
+                if (REALISM.fuelPhysics) {
+                    const used = Math.min(partialScored + 1, fuelPool[robotsKey][ri]);
+                    fuelPool[robotsKey][ri] -= used;
+                    scoreFuelThroughHub(fuelPool, allianceColor, partialScored);
+                }
             }
             leaveZone = autoTier.leaveZone && rollProbability(0.5);
         }
@@ -349,8 +574,11 @@ function simulateAutonomous(alliance) {
     }
 
     // Human player auto scoring
-    const hpResult = simulateHumanPlayer(alliance.hpTier, MATCH.autoDuration, true);
+    const hpResult = simulateHumanPlayer(alliance.hpTier, MATCH.autoDuration, true, fuelPool, allianceColor);
     totalFuelScored += hpResult.scored;
+
+    // Flush hub transit at end of auto
+    if (REALISM.fuelPhysics) flushHubTransit(fuelPool);
 
     return {
         fuelScored: totalFuelScored,
@@ -361,13 +589,9 @@ function simulateAutonomous(alliance) {
 }
 
 // --- TELEOP SIMULATION ---
-function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, robotStatuses) {
+function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, robotStatuses, fuelPool) {
     // Determine shift order: loser of auto gets first active hub
     const redWonAuto = redAutoFuel > blueAutoFuel;
-    // Shifts: if red won auto, red hub is inactive first (blue gets first active)
-    // Shift 1: red=inactive, blue=active
-    // Shift 2: red=active, blue=inactive
-    // etc.
     const shifts = [];
     for (let i = 0; i < MATCH.shiftCount; i++) {
         if (redWonAuto) {
@@ -375,7 +599,6 @@ function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, ro
         } else if (blueAutoFuel > redAutoFuel) {
             shifts.push({ redActive: i % 2 === 0, blueActive: i % 2 === 1 });
         } else {
-            // Tie — alternate starting with red
             shifts.push({ redActive: i % 2 === 0, blueActive: i % 2 === 1 });
         }
     }
@@ -392,8 +615,7 @@ function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, ro
     const blueDefense = getDefenseEffect(blueAlliance);
 
     // --- TRANSITION PERIOD (10s) ---
-    // Robots reposition, no scoring
-    // Hoarders start loading
+    // Hoarders start loading from fuel pool
     for (let i = 0; i < redAlliance.robots.length; i++) {
         const r = redAlliance.robots[i];
         const tier = ROBOT_TIERS[r.tier];
@@ -401,7 +623,9 @@ function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, ro
         if (status === 'dead') continue;
         const mult = ReliabilityEngine.getOutputMultiplier(status, tier);
         if (getTacticInactiveBehavior(r) === 'hoard') {
-            redHoppers[i].fuel = Math.min(redHoppers[i].capacity, Math.floor(tier.fuel.intakeRate * MATCH.transitionDuration * 0.5 * mult));
+            const wanted = Math.min(redHoppers[i].capacity, Math.floor(tier.fuel.intakeRate * MATCH.transitionDuration * 0.5 * mult));
+            const got = REALISM.fuelPhysics ? takeFuel(fuelPool, 'red', wanted) : wanted;
+            redHoppers[i].fuel = got;
         }
     }
     for (let i = 0; i < blueAlliance.robots.length; i++) {
@@ -411,7 +635,9 @@ function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, ro
         if (status === 'dead') continue;
         const mult = ReliabilityEngine.getOutputMultiplier(status, tier);
         if (getTacticInactiveBehavior(r) === 'hoard') {
-            blueHoppers[i].fuel = Math.min(blueHoppers[i].capacity, Math.floor(tier.fuel.intakeRate * MATCH.transitionDuration * 0.5 * mult));
+            const wanted = Math.min(blueHoppers[i].capacity, Math.floor(tier.fuel.intakeRate * MATCH.transitionDuration * 0.5 * mult));
+            const got = REALISM.fuelPhysics ? takeFuel(fuelPool, 'blue', wanted) : wanted;
+            blueHoppers[i].fuel = got;
         }
     }
 
@@ -421,32 +647,36 @@ function simulateTeleop(redAlliance, blueAlliance, redAutoFuel, blueAutoFuel, ro
         const shiftTime = MATCH.shiftDuration;
 
         // Red alliance this shift
-        const redResult = simulateAllianceShift(redAlliance, shift.redActive, shiftTime, redHoppers, blueDefense, robotStatuses.red, shiftIdx);
+        const redResult = simulateAllianceShift(redAlliance, shift.redActive, shiftTime, redHoppers, blueDefense, robotStatuses.red, shiftIdx, fuelPool, 'red');
         redFuel += redResult.activeScored;
         redFuelInactive += redResult.inactiveCollected;
 
         // Blue alliance this shift
-        const blueResult = simulateAllianceShift(blueAlliance, shift.blueActive, shiftTime, blueHoppers, redDefense, robotStatuses.blue, shiftIdx);
+        const blueResult = simulateAllianceShift(blueAlliance, shift.blueActive, shiftTime, blueHoppers, redDefense, robotStatuses.blue, shiftIdx, fuelPool, 'blue');
         blueFuel += blueResult.activeScored;
         blueFuelInactive += blueResult.inactiveCollected;
 
         // HP scoring (only when hub is active)
         if (shift.redActive) {
-            redFuel += simulateHumanPlayer(redAlliance.hpTier, shiftTime, true).scored;
+            redFuel += simulateHumanPlayer(redAlliance.hpTier, shiftTime, true, fuelPool, 'red').scored;
         }
         if (shift.blueActive) {
-            blueFuel += simulateHumanPlayer(blueAlliance.hpTier, shiftTime, true).scored;
+            blueFuel += simulateHumanPlayer(blueAlliance.hpTier, shiftTime, true, fuelPool, 'blue').scored;
         }
+
+        // Flush hub transit at end of each shift
+        if (REALISM.fuelPhysics) flushHubTransit(fuelPool);
     }
 
     return { redFuel, blueFuel, redFuelInactive, blueFuelInactive, shifts };
 }
 
-function simulateAllianceShift(alliance, isActive, shiftTime, hoppers, opponentDefense, statuses, shiftIdx) {
+function simulateAllianceShift(alliance, isActive, shiftTime, hoppers, opponentDefense, statuses, shiftIdx, fuelPool, allianceColor) {
     let activeScored = 0;
     let inactiveCollected = 0;
 
     const defenseDisruption = opponentDefense.totalDisruption;
+    const hasDefender = defenseDisruption > 0;
     const congestionPenalty = FieldGeometry.getCongestionPenalty(
         alliance.robots.filter((r, i) => statuses[i] !== 'dead' && !isDefender(r)).length
     );
@@ -454,6 +684,7 @@ function simulateAllianceShift(alliance, isActive, shiftTime, hoppers, opponentD
     for (let i = 0; i < alliance.robots.length; i++) {
         const robot = alliance.robots[i];
         const tier = ROBOT_TIERS[robot.tier];
+        const turret = TURRET_TYPES[robot.turretType || tier.defaultTurret || 'singleSpin'];
         const status = statuses[i];
 
         if (status === 'dead') continue;
@@ -462,11 +693,10 @@ function simulateAllianceShift(alliance, isActive, shiftTime, hoppers, opponentD
         // Check for brownout
         const elapsed = (MATCH.transitionDuration + shiftIdx * MATCH.shiftDuration) / (MATCH.totalDuration - MATCH.autoDuration);
         if (ReliabilityEngine.rollBrownout(tier, elapsed)) {
-            continue; // Lost this shift to brownout
+            continue;
         }
 
         if (isDefender(robot)) {
-            // Defender doesn't score
             continue;
         }
 
@@ -474,37 +704,56 @@ function simulateAllianceShift(alliance, isActive, shiftTime, hoppers, opponentD
         const accuracyMod = FieldGeometry.distanceTiers[shootPos]?.accuracyMod || 0;
         const traverseMod = FieldGeometry.distanceTiers[shootPos]?.traverseTime || 1.0;
 
+        // Apply turret defense resilience
+        const defenseMult = hasDefender ? turret.defenseResilience : 1.0;
+
         if (isActive) {
             // ACTIVE: Score from hopper first, then cycle
             const hopperDump = hoppers[i].fuel;
             if (hopperDump > 0) {
-                const dumpTime = hopperDump / tier.fuel.shootRate;
+                const effectiveShootRate = tier.fuel.shootRate * turret.shootRateMult;
+                const dumpTime = turret.alignTime + (hopperDump / effectiveShootRate);
                 const acc = clamp(tier.fuel.accuracy + accuracyMod, 0.3, 0.99);
-                activeScored += Math.floor(applyVariance(hopperDump * acc * mult, 0.10));
+                const scored = Math.floor(applyVariance(hopperDump * acc * mult * defenseMult, 0.10));
+                activeScored += scored;
                 hoppers[i].fuel = 0;
+
+                // Fuel pool: scored fuel goes through hub, misses go to neutral
+                if (REALISM.fuelPhysics) {
+                    scoreFuelThroughHub(fuelPool, allianceColor, scored);
+                    fuelPool.neutralZone += (hopperDump - scored); // missed fuel
+                }
 
                 // Remaining time for cycling
                 const remainTime = shiftTime - dumpTime;
                 if (remainTime > 0) {
-                    activeScored += simulateCycles(tier, remainTime, acc, mult, defenseDisruption, congestionPenalty, traverseMod);
+                    const cycleScored = simulateCycles(tier, remainTime, acc, mult, defenseDisruption, congestionPenalty, traverseMod, turret, fuelPool, allianceColor, defenseMult);
+                    activeScored += cycleScored;
                 }
             } else {
                 const acc = clamp(tier.fuel.accuracy + accuracyMod, 0.3, 0.99);
-                activeScored += simulateCycles(tier, shiftTime, acc, mult, defenseDisruption, congestionPenalty, traverseMod);
+                activeScored += simulateCycles(tier, shiftTime, acc, mult, defenseDisruption, congestionPenalty, traverseMod, turret, fuelPool, allianceColor, defenseMult);
             }
         } else {
             // INACTIVE: Behavior depends on tactic
             const behavior = getTacticInactiveBehavior(robot);
-            if (behavior === 'hoard') {
-                const collectTime = shiftTime * 0.9;
-                const collected = Math.floor(tier.fuel.intakeRate * collectTime * mult * 0.8);
-                hoppers[i].fuel = Math.min(hoppers[i].capacity, hoppers[i].fuel + collected);
-                inactiveCollected += collected;
-            } else if (behavior === 'stockpile') {
-                // Aggressive hoarding — collect more fuel to dump on next active shift
-                const collected = Math.floor(tier.fuel.intakeRate * shiftTime * mult);
-                hoppers[i].fuel = Math.min(hoppers[i].capacity, hoppers[i].fuel + collected);
-                inactiveCollected += collected;
+            if (behavior === 'hoard' || behavior === 'stockpile') {
+                const collectMult = behavior === 'stockpile' ? 1.0 : 0.8;
+                const collectTime = behavior === 'stockpile' ? shiftTime : shiftTime * 0.9;
+                const wanted = Math.floor(tier.fuel.intakeRate * collectTime * mult * collectMult);
+                const got = REALISM.fuelPhysics ? takeFuel(fuelPool, allianceColor, wanted) : wanted;
+                hoppers[i].fuel = Math.min(hoppers[i].capacity, hoppers[i].fuel + got);
+                inactiveCollected += got;
+            } else if (behavior === 'restock') {
+                // Robot restocks outpost from neutral zone
+                if (REALISM.fuelPhysics) {
+                    const outpostKey = allianceColor + 'Outpost';
+                    if (fuelPool[outpostKey] < 10) {
+                        const deliverable = Math.min(8, fuelPool.neutralZone);
+                        fuelPool.neutralZone -= deliverable;
+                        fuelPool[outpostKey] += deliverable;
+                    }
+                }
             } else if (behavior === 'reposition') {
                 // Just position for next active period
             }
@@ -515,18 +764,34 @@ function simulateAllianceShift(alliance, isActive, shiftTime, hoppers, opponentD
     return { activeScored: Math.max(0, activeScored), inactiveCollected };
 }
 
-function simulateCycles(tier, time, accuracy, outputMult, defenseDisruption, congestionPenalty, traverseMod) {
+function simulateCycles(tier, time, accuracy, outputMult, defenseDisruption, congestionPenalty, traverseMod, turret, fuelPool, allianceColor, defenseMult) {
+    const effectiveShootRate = tier.fuel.shootRate * turret.shootRateMult;
     const cycleTime = (tier.drivetrain.fieldTraverse * traverseMod) +
+        turret.alignTime +  // turret alignment overhead per cycle
         (tier.fuel.hopperCapacity / tier.fuel.intakeRate) * 0.5 +
-        (tier.fuel.hopperCapacity / tier.fuel.shootRate) +
+        (tier.fuel.hopperCapacity / effectiveShootRate) +
         tier.drivetrain.bumpPenalty * 0.5 +
         congestionPenalty;
 
     const effectiveCycleTime = cycleTime * (1 + defenseDisruption);
     const cycles = Math.max(0, time / effectiveCycleTime);
-    const fuelPerCycle = tier.fuel.hopperCapacity * 0.7; // Don't always fill completely
-    const totalFuel = cycles * fuelPerCycle * accuracy * outputMult;
-    return Math.floor(applyVariance(totalFuel, 0.15));
+    const fuelPerCycle = tier.fuel.hopperCapacity * 0.7;
+
+    // Cap by available fuel in pool
+    let totalWanted = Math.ceil(cycles * fuelPerCycle);
+    if (REALISM.fuelPhysics) {
+        totalWanted = Math.min(totalWanted, takeFuel(fuelPool, allianceColor, totalWanted));
+    }
+
+    const totalScored = Math.floor(applyVariance(totalWanted * accuracy * outputMult * defenseMult, 0.15));
+
+    // Fuel pool: scored goes to hub, missed returns to neutral
+    if (REALISM.fuelPhysics) {
+        scoreFuelThroughHub(fuelPool, allianceColor, totalScored);
+        fuelPool.neutralZone += (totalWanted - totalScored);
+    }
+
+    return totalScored;
 }
 
 // --- ENDGAME SIMULATION ---
@@ -569,7 +834,10 @@ function simulateEndgame(alliance, robotStatuses, priorFuelScored) {
 
         // Score during endgame (both hubs active)
         if (scoreTime > 0 && !isDefender(robot)) {
-            const endgameFuel = simulateCycles(tier, scoreTime, acc, mult, 0, 0, 1.0);
+            const turret = TURRET_TYPES[robot.turretType || tier.defaultTurret || 'singleSpin'];
+            const fuelPool = alliance._fuelPool;
+            const allianceColor = alliance._color || 'red';
+            const endgameFuel = simulateCycles(tier, scoreTime, acc, mult, 0, 0, 1.0, turret, fuelPool, allianceColor, 1.0);
             fuelScored += endgameFuel;
         }
 
@@ -590,7 +858,9 @@ function simulateEndgame(alliance, robotStatuses, priorFuelScored) {
     }
 
     // HP in endgame (both active)
-    const hpResult = simulateHumanPlayer(alliance.hpTier, endgameTime, true);
+    // HP in endgame needs fuelPool and alliance color — these are passed as extra params
+    // (handled by the caller passing them through)
+    const hpResult = simulateHumanPlayer(alliance.hpTier, endgameTime, true, alliance._fuelPool || { hpCapacity: 18, redOutpost: 99, blueOutpost: 99 }, alliance._color || 'red');
     fuelScored += hpResult.scored;
 
     return { fuelScored, climbPts, climbResults, hpScored: hpResult.scored };
@@ -660,6 +930,9 @@ function calculateRP(redScore, blueScore, redFuelActive, blueFuelActive, redClim
 
 // --- FULL MATCH SIMULATION ---
 function runMatch(redAlliance, blueAlliance) {
+    // Create fuel pool for finite tracking
+    const fuelPool = createFuelPool();
+
     // Roll reliability per robot
     const robotStatuses = {
         red: redAlliance.robots.map(r => ReliabilityEngine.rollStatus(ROBOT_TIERS[r.tier])),
@@ -671,13 +944,18 @@ function runMatch(redAlliance, blueAlliance) {
     assignDefenderRoles(blueAlliance);
 
     // --- Autonomous ---
-    const redAuto = simulateAutonomous(redAlliance);
-    const blueAuto = simulateAutonomous(blueAlliance);
+    const redAuto = simulateAutonomous(redAlliance, fuelPool, 'red');
+    const blueAuto = simulateAutonomous(blueAlliance, fuelPool, 'blue');
 
     // --- Teleop ---
-    const teleop = simulateTeleop(redAlliance, blueAlliance, redAuto.fuelScored, blueAuto.fuelScored, robotStatuses);
+    const teleop = simulateTeleop(redAlliance, blueAlliance, redAuto.fuelScored, blueAuto.fuelScored, robotStatuses, fuelPool);
 
     // --- Endgame ---
+    // Attach fuelPool and color for endgame HP scoring
+    redAlliance._fuelPool = fuelPool;
+    redAlliance._color = 'red';
+    blueAlliance._fuelPool = fuelPool;
+    blueAlliance._color = 'blue';
     const redEndgame = simulateEndgame(redAlliance, robotStatuses.red, redAuto.fuelScored + teleop.redFuel);
     const blueEndgame = simulateEndgame(blueAlliance, robotStatuses.blue, blueAuto.fuelScored + teleop.blueFuel);
 
@@ -946,7 +1224,7 @@ function deepCopyAlliance(alliance) {
 // --- EXPORTS (for use in app.js) ---
 if (typeof window !== 'undefined') {
     window.Simulator = {
-        ROBOT_TIERS, AUTO_TIERS, HP_TIERS, TACTICS, MATCH, FUEL, REALISM,
+        ROBOT_TIERS, AUTO_TIERS, HP_TIERS, TURRET_TYPES, TACTICS, MATCH, FUEL, REALISM,
         runMatch, runBatchSimulation, findOptimalTactics,
         createAlliance, createCustomAlliance
     };
